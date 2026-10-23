@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b1118">
+  <link rel="icon" href="data:,">
+  <title>Vocal2MIDITune — Prototype testable 0.1</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="ambient ambient-one"></div>
+  <div class="ambient ambient-two"></div>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 42 42" fill="none"><path d="M7 22h5l3-11 6 22 5-18 4 11 3-4h3" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div>
+          <h1>VOCAL2MIDI <span>TUNE</span></h1>
+          <p>PROTOTYPE INTERACTIF · VERSION 0.1.0</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <div class="engine-badge"><span id="status-dot" class="status-dot"></span><span id="engine-status">PRÊT À TESTER</span></div>
+        <button id="panic-button" class="button button-ghost" type="button">Panic MIDI</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="transport-panel">
+        <div class="transport-top">
+          <div class="source-group">
+            <span class="eyebrow">SOURCE D’ENTRÉE</span>
+            <div class="segmented" role="group" aria-label="Source audio">
+              <button class="segment active" data-source="demo" type="button">Voix de test</button>
+              <button class="segment" data-source="mic" type="button">Microphone</button>
+              <button class="segment" data-source="file" type="button">Fichier audio</button>
+            </div>
+          </div>
+          <div class="transport-actions">
+            <input id="audio-file" type="file" accept="audio/*" hidden>
+            <button id="file-button" class="button button-ghost file-button" type="button" hidden>Choisir un fichier</button>
+            <button id="start-button" class="button button-primary" type="button">
+              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M7 5.5v9l7-4.5z" fill="currentColor"/></svg>
+              <span>Démarrer le test</span>
+            </button>
+          </div>
+        </div>
+        <div id="file-name" class="file-name" hidden></div>
+
+        <div class="monitor-grid">
+          <article class="metric-card">
+            <span class="metric-label">FRÉQUENCE DÉTECTÉE</span>
+            <strong id="frequency-value" class="metric-value mint">— <small>Hz</small></strong>
+            <span class="metric-caption">Analyse YIN monophonique</span>
+          </article>
+          <article class="metric-card">
+            <span class="metric-label">NOTE D’ENTRÉE</span>
+            <strong id="input-note-value" class="metric-value blue">—</strong>
+            <span id="raw-midi-value" class="metric-caption">En attente d’un signal</span>
+          </article>
+          <article class="metric-card target-card">
+            <span class="metric-label">NOTE MIDI CIBLE</span>
+            <strong id="target-note-value" class="metric-value lime">—</strong>
+            <span id="target-midi-value" class="metric-caption">Aucune note active</span>
+          </article>
+          <article class="metric-card">
+            <span class="metric-label">CONFIANCE</span>
+            <strong id="confidence-value" class="metric-value amber">0 <small>%</small></strong>
+            <div class="tiny-meter"><span id="confidence-bar"></span></div>
+          </article>
+        </div>
+
+        <div class="visual-grid">
+          <div class="signal-card">
+            <div class="level-header"><span class="metric-label">NIVEAU D’ENTRÉE</span><span id="db-value">−∞ dB</span></div>
+            <div class="level-meter"><span id="level-bar"></span></div>
+            <div class="level-ticks"><span>−60</span><span>−36</span><span>−12</span><span>0 dB</span></div>
+            <div class="deviation-header"><span class="metric-label">DÉVIATION</span><strong id="cents-value">0.0 cents</strong></div>
+            <div class="cents-gauge"><span class="centre-line"></span><span id="cents-marker"></span></div>
+            <div class="level-ticks"><span>−50</span><span>0</span><span>+50 cents</span></div>
+          </div>
+          <div class="history-card">
+            <div class="history-legend"><span><i class="legend-line raw"></i>Voix détectée</span><span><i class="legend-line target"></i>Note quantifiée</span><span class="history-range">C2 — C6</span></div>
+            <canvas id="pitch-canvas" aria-label="Historique des notes détectées et quantifiées"></canvas>
+            <div id="canvas-empty" class="canvas-empty">Lance la voix de test pour visualiser la conversion en temps réel.</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="preset-strip">
+        <div class="preset-title"><span class="eyebrow">DÉPART RAPIDE</span><strong>Choisis un comportement</strong></div>
+        <select id="preset-select" aria-label="Preset">
+          <option>Natural Vocal MIDI</option>
+          <option>Hard Tune MIDI</option>
+          <option>808 Glide</option>
+          <option>Expressive Synth Lead</option>
+          <option>Piano Notes</option>
+          <option>Bass Vocal</option>
+        </select>
+        <button id="apply-preset" class="button button-secondary" type="button">Appliquer le preset</button>
+        <div class="listen-options">
+          <label class="check-label"><input id="synth-enabled" type="checkbox" checked><span>Synthé d’écoute</span></label>
+          <label class="check-label"><input id="monitor-enabled" type="checkbox"><span>Entrée audible</span></label>
+        </div>
+      </section>
+
+      <div class="control-grid">
+        <section class="control-panel">
+          <div class="panel-heading"><span class="panel-index">01</span><div><h2>Gamme & transposition</h2><p>Verrouille les notes vers une tonalité.</p></div></div>
+          <div id="scale-controls" class="controls"></div>
+        </section>
+        <section class="control-panel wide-panel">
+          <div class="panel-heading"><span class="panel-index">02</span><div><h2>Détection vocale</h2><p>Ajuste la sensibilité et le relâchement.</p></div></div>
+          <div id="detection-controls" class="controls"></div>
+        </section>
+        <section class="control-panel wide-panel">
+          <div class="panel-heading"><span class="panel-index">03</span><div><h2>Sortie MIDI</h2><p>Notes, vélocité et comportement legato.</p></div></div>
+          <div id="midi-controls" class="controls"></div>
+        </section>
+        <section class="control-panel">
+          <div class="panel-heading"><span class="panel-index">04</span><div><h2>Glide / portamento</h2><p>Transition par pitch bend MIDI.</p></div></div>
+          <div id="glide-controls" class="controls"></div>
+        </section>
+        <section class="control-panel wide-panel">
+          <div class="panel-heading"><span class="panel-index">05</span><div><h2>Pitch bend vocal</h2><p>Micro-variations expressives en 14 bits.</p></div></div>
+          <div id="bend-controls" class="controls"></div>
+        </section>
+        <section class="control-panel wide-panel routing-panel">
+          <div class="panel-heading"><span class="panel-index">06</span><div><h2>Écoute & routage</h2><p>Teste avec le synthé interne ou Web MIDI.</p></div></div>
+          <div class="routing-content">
+            <div class="volume-control"><label for="synth-volume">Volume du synthé <output id="volume-output">25 %</output></label><input id="synth-volume" type="range" min="0" max="100" value="25"></div>
+            <div class="web-midi-row"><button id="web-midi-button" class="button button-ghost" type="button">Activer Web MIDI</button><select id="midi-outputs" aria-label="Sortie Web MIDI" disabled><option>Aucune sortie MIDI</option></select></div>
+            <p id="midi-support" class="routing-help">Web MIDI est optionnel. Le synthé interne fonctionne sans pilote ni configuration.</p>
+          </div>
+          <div class="routing-note"><strong>Dans Ableton avec le VST3</strong><span>Piste voix → sortie MIDI du plugin → piste instrument. Fais correspondre le Pitch Bend Range du synthé.</span></div>
+        </section>
+      </div>
+    </main>
+
+    <footer><span>Voice to MIDI for Ableton Live</span><span>Démo navigateur · Le projet JUCE/VST3 est inclus</span></footer>
+  </div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="app.js"></script>
+</body>
+</html>

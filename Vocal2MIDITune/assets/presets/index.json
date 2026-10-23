@@ -1,0 +1,28 @@
+{
+  "presets": [
+    {
+      "name": "Natural Vocal MIDI",
+      "file": "01-natural-vocal-midi.json"
+    },
+    {
+      "name": "Hard Tune MIDI",
+      "file": "02-hard-tune-midi.json"
+    },
+    {
+      "name": "808 Glide",
+      "file": "03-808-glide.json"
+    },
+    {
+      "name": "Expressive Synth Lead",
+      "file": "04-expressive-synth-lead.json"
+    },
+    {
+      "name": "Piano Notes",
+      "file": "05-piano-notes.json"
+    },
+    {
+      "name": "Bass Vocal",
+      "file": "06-bass-vocal.json"
+    }
+  ]
+}
